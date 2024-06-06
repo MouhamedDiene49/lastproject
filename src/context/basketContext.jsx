@@ -1,60 +1,32 @@
-import { createContext, useReducer } from "react";
-import rootReducer from "../reducers";
-import { 
-    addToBasket, 
-    clearBasket, 
-    addQtyItem, 
-    minusQtyItem, 
-    removeFromBasket, 
-    setBasketMsgOn, 
-    setBasketMsgOff, 
-    getBasketTotal,
-    addToCheckout,
-    removeFromCheckout,
-    getCheckoutTotal,
-    setCheckoutAll,
-    unsetCheckoutAll,
-} from "../actions/basketActions";
-import { fetchFromLocalStorage } from "../utils/helpers";
-import PropTypes from "prop-types";
+// basketContext.js
+import React, { createContext, useReducer, useContext } from 'react';
+
+export const BasketContext = createContext();
 
 const initialState = {
-    basket: fetchFromLocalStorage("basket"),
-    itemsCount: 0,
-    totalAmount: 0,
-    checkoutCount: 0,
-    checkoutTotal: 0,
-    checkoutAll: false,
-    basketMsgStatus: false
+  items: [],
+  totalAmount: 0,
+  itemsCount: 0,
 };
 
-export const BasketContext = createContext({});
-export const BasketProvider = ({children}) => {
-    const [state, dispatch] = useReducer(rootReducer.basket, initialState);
+const basketReducer = (state, action) => {
+  switch (action.type) {
+    // Define your basket reducer cases here
+    default:
+      return state;
+  }
+};
 
-    return (
-        <BasketContext.Provider value = {{
-            ...state,
-            dispatch,
-            addToBasket, 
-            clearBasket, 
-            addQtyItem, 
-            minusQtyItem, 
-            removeFromBasket,
-            setBasketMsgOn,
-            setBasketMsgOff,
-            getBasketTotal,
-            addToCheckout,
-            removeFromCheckout,
-            getCheckoutTotal,
-            setCheckoutAll,
-            unsetCheckoutAll
-        }}>
-            {children}
-        </BasketContext.Provider>
-    )
-}
+export const BasketProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(basketReducer, initialState);
 
-BasketProvider.propTypes = {
-    children: PropTypes.node
-}
+  const getBasketTotal = (dispatch) => {
+    // Calculate total amount and items count
+  };
+
+  return (
+    <BasketContext.Provider value={{ ...state, getBasketTotal, dispatch }}>
+      {children}
+    </BasketContext.Provider>
+  );
+};

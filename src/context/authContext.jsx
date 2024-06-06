@@ -1,38 +1,41 @@
-import { createContext, useReducer } from "react";
-import rootReducer from "../reducers";
-import { makeAuthRequest, logout } from "../actions/authActions";
-import { fetchFromLocalStorage } from "../utils/helpers";
-import PropTypes from 'prop-types'
+import React, { createContext, useReducer } from 'react';
 
-const fetchAuthData = () => {
-    let authData = fetchFromLocalStorage("authData");
-    if(authData.length === 0) return authData = { isLoggedIn: false, info: {} }
-    return authData;
-}
+export const AuthContext = createContext();
 
 const initialState = {
-    authLoading: false,
-    authError: false,
-    authData: fetchAuthData(),
-    authErrorMsg: ""
-}
+  authData: {
+    isLoggedIn: false,
+    info: { firstName: '' },
+  },
+};
 
-export const AuthContext = createContext({});
+const authReducer = (state, action) => {
+  switch (action.type) {
+    case 'LOGIN':
+      return {
+        ...state,
+        authData: { isLoggedIn: true, info: action.payload },
+      };
+    case 'LOGOUT':
+      return {
+        ...state,
+        authData: { isLoggedIn: false, info: {} },
+      };
+    default:
+      return state;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
-    const [state, dispatch] = useReducer(rootReducer.auth, initialState);
+  const [state, dispatch] = useReducer(authReducer, initialState);
 
-    return (
-        <AuthContext.Provider value = {{
-            ...state,
-            makeAuthRequest,
-            dispatch,
-            logout
-        }}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
+  const logout = () => {
+    dispatch({ type: 'LOGOUT' });
+  };
 
-AuthProvider.propTypes = {
-    children: PropTypes.node
-}
+  return (
+    <AuthContext.Provider value={{ ...state, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
